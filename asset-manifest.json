@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/soccrd/static/css/main.f855e6bc.css",
+    "main.js": "/soccrd/static/js/main.688cf1ac.js",
+    "static/js/488.35c8e52b.chunk.js": "/soccrd/static/js/488.35c8e52b.chunk.js",
+    "static/media/logo.svg": "/soccrd/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/soccrd/index.html",
+    "main.f855e6bc.css.map": "/soccrd/static/css/main.f855e6bc.css.map",
+    "main.688cf1ac.js.map": "/soccrd/static/js/main.688cf1ac.js.map",
+    "488.35c8e52b.chunk.js.map": "/soccrd/static/js/488.35c8e52b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.688cf1ac.js"
+  ]
+}
