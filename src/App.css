@@ -43,9 +43,11 @@ h1 {
 }
 
 .tile {
-  width: calc(100% / var(--word-length));
-  height: auto;
-  aspect-ratio: 1 / 1;
+  flex-basis: calc(100% / var(--word-length));
+  flex-grow: 0;
+  flex-shrink: 0;
+  height: 0;
+  padding-top: calc(100% / var(--word-length));
   border: 2px solid #ddd;
   margin: 4px;
   display: flex;
@@ -56,8 +58,8 @@ h1 {
   text-transform: uppercase;
   border-radius: 4px;
   transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
-  backface-visibility: hidden;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .tile.green {
