@@ -14,7 +14,7 @@ body {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  max-width: 900px;
+  max-width: 500px;
   width: 90%;
   box-sizing: border-box;
   display: flex;
@@ -32,7 +32,6 @@ h1 {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 500px;
   margin-bottom: 20px;
 }
 
@@ -44,19 +43,21 @@ h1 {
 }
 
 .tile {
-  width: 50px;
-  height: 50px;
+  width: calc(100% / var(--word-length));
+  height: auto;
+  aspect-ratio: 1 / 1;
   border: 2px solid #ddd;
   margin: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  font-size: calc(min(4vw, 2rem));
   font-weight: bold;
   text-transform: uppercase;
   border-radius: 4px;
   transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
   backface-visibility: hidden;
+  box-sizing: border-box;
 }
 
 .tile.green {
@@ -112,4 +113,12 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;}
+  background-color: #45a049;
+}
+
+@media (max-width: 400px) {
+  .tile {
+      font-size: calc(min(6vw, 1.5rem));
+      margin: 2px;
+  }
+}
