@@ -14,9 +14,12 @@ body {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  max-width: 900px; /* Increased max-width for larger screens */
-  width: 90%; /* Use percentage for flexibility */
-  box-sizing: border-box; /* Important for padding/border to be included in width */
+  max-width: 900px;
+  width: 90%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h1 {
@@ -24,31 +27,37 @@ h1 {
   margin-bottom: 20px;
 }
 
+.guess-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+
 .guess-row {
   display: flex;
   justify-content: center;
+  width: 100%;
   margin-bottom: 10px;
-  flex-wrap: wrap; /* Allow tiles to wrap on smaller screens */
 }
 
 .tile {
-  width: calc(10vw - 10px); /* Flexible width based on viewport width */
-  height: calc(10vw - 10px); /* Maintain square aspect ratio */
+  width: 50px;
+  height: 50px;
   border: 2px solid #ddd;
   margin: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: calc(5vw); /* Flexible font size */
+  font-size: 24px;
   font-weight: bold;
   text-transform: uppercase;
   border-radius: 4px;
   transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
   backface-visibility: hidden;
-  max-width: 60px; /* Set a maximum width for very large screens */
-  max-height: 60px;
 }
-
 
 .tile.green {
   background-color: #6aaa64;
@@ -86,8 +95,8 @@ input[type="text"] {
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-bottom: 10px;
-  width: 80%; /* Make input width responsive */
-  max-width: 300px; /* Set max width for larger screens */
+  width: 80%;
+  max-width: 300px;
   box-sizing: border-box;
 }
 
@@ -103,21 +112,4 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;
-}
-
-/* Media Queries for more specific adjustments */
-@media (max-width: 768px) { /* Styles for tablets and smaller */
-  .tile {
-      font-size: calc(7vw); /* Slightly larger font on smaller screens */
-  }
-}
-
-@media (max-width: 480px) { /* Styles for phones */
-  .tile {
-      font-size: calc(9vw); /* Even larger font on phones */
-  }
-  .App{
-      padding: 10px;
-  }
-}
+  background-color: #45a049;}
