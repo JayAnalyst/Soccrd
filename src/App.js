@@ -24,9 +24,33 @@ function App() {
     };
 
     useEffect(() => {
-        setSecretWord(getWordOfTheDay());  // Set the word of the day on first render
-        netlifyIdentity.init();
-    }, []);
+    setSecretWord(getWordOfTheDay()); // Set the word of the day on first render
+
+    netlifyIdentity.init();
+    const currentUser = netlifyIdentity.currentUser();
+
+    if (currentUser) {
+        setUser({
+            email: currentUser.email,
+            username: currentUser.user_metadata.full_name || currentUser.email.split('@')[0],
+        });
+    }
+
+    netlifyIdentity.on('login', user => {
+        setUser({
+            email: user.email,
+            username: user.user_metadata.full_name || user.email.split('@')[0],
+        });
+        netlifyIdentity.close();
+    });
+
+    netlifyIdentity.on('logout', () => {
+        setUser(null);
+    });
+}, []);
+
+
+
 
     useEffect(() => {
         localStorage.setItem('soccrdLeaderboard', JSON.stringify(leaderboard));
