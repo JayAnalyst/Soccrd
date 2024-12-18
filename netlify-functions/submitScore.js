@@ -1,37 +1,25 @@
-// netlify-functions/submitScore.js
-
-const leaderboardFile = './leaderboard.json';  // Simulate a file, or use a DB
+// netlify-functions/getLeaderboard.js
 
 const fs = require('fs');
+const path = require('path');
 
 exports.handler = async function (event, context) {
-  const { username, score } = JSON.parse(event.body);
+  const leaderboardFilePath = path.join(__dirname, '..', 'leaderboard.json');
 
   try {
-    const data = fs.readFileSync(leaderboardFile);
+    // Read the leaderboard data from the file
+    const data = fs.readFileSync(leaderboardFilePath);
     const leaderboard = JSON.parse(data);
 
-    leaderboard.push({ username, score, date: new Date().toISOString() });
-
-    // Sort leaderboard by score in descending order
-    leaderboard.sort((a, b) => b.score - a.score);
-
-    // Keep top 10 scores
-    if (leaderboard.length > 10) {
-      leaderboard.length = 10;
-    }
-
-    // Save updated leaderboard
-    fs.writeFileSync(leaderboardFile, JSON.stringify(leaderboard));
-
+    // Return the leaderboard data
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Score submitted successfully!' }),
+      body: JSON.stringify(leaderboard),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to submit score' }),
+      body: JSON.stringify({ error: 'Failed to retrieve leaderboard' }),
     };
   }
 };
