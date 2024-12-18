@@ -66,15 +66,21 @@ function App() {
         if (platform === 'clipboard') {
             try {
                 const blob = await fetch(dataURL).then(r => r.blob());
-                const clipboardItem = new ClipboardItem({
-                    'image/png': blob
-                });
-                await navigator.clipboard.write([clipboardItem]);
-                alert("Image copied to clipboard!");
+
+                if (navigator.clipboard && window.ClipboardItem) {
+                    const clipboardItem = new ClipboardItem({
+                        'image/png': blob,
+                    });
+                    await navigator.clipboard.write([clipboardItem]);
+                    alert("Image copied to clipboard!");
+                } else {
+                    // Fallback if ClipboardItem is not supported
+                    alert("Clipboard API not supported in this browser.");
+                }
             } catch (err) {
                 console.error("Failed to copy: ", err);
                 alert("Failed to copy image to clipboard. Your browser may not support this feature.");
-                // Optional: Offer to let the user download the image instead
+                // Optional: Offer the user to download the image instead
                 const downloadLink = document.createElement('a');
                 downloadLink.href = dataURL;
                 downloadLink.download = 'soccrd_image.png';
@@ -90,6 +96,7 @@ function App() {
         alert("An error occurred while sharing.");
     }
 };
+
 
     return (
         <div className="App" style={{ "--word-length": secretWord.length }}>
