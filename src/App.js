@@ -103,7 +103,7 @@ function App() {
                     <button onClick={handleShare}>Share Score</button>
                 </div>
             )}
-            <h2>Leaderboard</h2>
+            <h2>Guesses</h2>
             <ul>
                 {leaderboard.map((score, index) => (
                     <li key={index}>
