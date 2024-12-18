@@ -60,9 +60,7 @@ function App() {
         if (!gridRef.current) return;
 
         try {
-            const canvas = await html2canvas(gridRef.current, {
-                backgroundColor: null,
-            });
+            const canvas = await html2canvas(gridRef.current, { backgroundColor: null });
             const dataURL = canvas.toDataURL('image/png');
 
             if (platform === 'facebook') {
@@ -70,16 +68,14 @@ function App() {
             } else if (platform === 'twitter') {
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}&url=${encodeURIComponent(dataURL)}`, '_blank');
             } else if (platform === 'clipboard') {
-                navigator.clipboard.writeText(dataURL).then(() => {
-                    alert("Image copied to clipboard!");
-                }).catch(err => {
+                navigator.clipboard.writeText(dataURL).then(() => alert("Image copied to clipboard!")).catch(err => {
                     console.error("Failed to copy: ", err);
                     alert("Failed to copy image to clipboard.");
                 });
             }
         } catch (error) {
             console.error('Error capturing or sharing image:', error);
-            alert("An error occurred while sharing."); // User-friendly error message
+            alert("An error occurred while sharing.");
         }
     };
 
@@ -106,9 +102,11 @@ function App() {
             {gameOver && (
                 <div>
                     {gameWon ? <p>You Win! The word was {secretWord}</p> : <p>You Lose! The word was {secretWord}</p>}
-                    <button onClick={() => handleShare('facebook')}>Share on Facebook</button>
-                    <button onClick={() => handleShare('twitter')}>Share on Twitter</button>
-                    <button onClick={() => handleShare('clipboard')}>Copy Image</button>
+                    <div>
+                        <button onClick={() => handleShare('facebook')}>Share on Facebook</button>
+                        <button onClick={() => handleShare('twitter')}>Share on Twitter</button>
+                        <button onClick={() => handleShare('clipboard')}>Copy Image</button>
+                    </div>
                 </div>
             )}
             <h2>Leaderboard</h2>
