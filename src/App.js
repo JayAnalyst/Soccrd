@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import words from './words';
 import './App.css';
+import html2canvas from 'html2canvas';
 
 function App() {
     const [secretWord, setSecretWord] = useState('');
@@ -12,6 +13,7 @@ function App() {
         const storedLeaderboard = localStorage.getItem('soccrdLeaderboard');
         return storedLeaderboard ? JSON.parse(storedLeaderboard) : [];
     });
+    const gridRef = useRef(null);
 
     useEffect(() => {
         const randomIndex = Math.floor(Math.random() * words.length);
@@ -54,33 +56,37 @@ function App() {
         return 'red';
     };
 
-    const handleShare = () => {
-        const guessesTaken = guesses.filter(guess => guess !== '').length + 1;
-        const shareText = `I solved Soccrd in ${guessesTaken} guess${guessesTaken > 1 ? 'es' : ''}! The word was ${secretWord}. Play it here: [YOUR_DEPLOYED_URL]`;
-        if (navigator.share) {
-            navigator.share({
-                title: 'Soccrd',
-                text: shareText,
-                url: '[YOUR_DEPLOYED_URL]',
-            }).then(() => {
-                console.log('Successful share');
-            }).catch((error) => {
-                console.log('Error sharing', error);
-                navigator.clipboard.writeText(shareText).then(() => {
-                    alert("Share text copied to clipboard. Please share manually.");
-                })
+    const handleShare = async (platform) => {
+        if (!gridRef.current) return;
+
+        try {
+            const canvas = await html2canvas(gridRef.current, {
+                backgroundColor: null,
             });
-        } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                alert("Share text copied to clipboard. Please share manually.");
-            })
+            const dataURL = canvas.toDataURL('image/png');
+
+            if (platform === 'facebook') {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(dataURL)}`, '_blank');
+            } else if (platform === 'twitter') {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}&url=${encodeURIComponent(dataURL)}`, '_blank');
+            } else if (platform === 'clipboard') {
+                navigator.clipboard.writeText(dataURL).then(() => {
+                    alert("Image copied to clipboard!");
+                }).catch(err => {
+                    console.error("Failed to copy: ", err);
+                    alert("Failed to copy image to clipboard.");
+                });
+            }
+        } catch (error) {
+            console.error('Error capturing or sharing image:', error);
+            alert("An error occurred while sharing."); // User-friendly error message
         }
     };
 
     return (
         <div className="App" style={{ "--word-length": secretWord.length }}>
             <h1>Soccrd</h1>
-            <div className="guess-grid">
+            <div className="guess-grid" ref={gridRef}>
                 {guesses.map((guess, guessIndex) => (
                     <div key={guessIndex} className="guess-row">
                         {secretWord.split('').map((letter, letterIndex) => (
@@ -100,10 +106,12 @@ function App() {
             {gameOver && (
                 <div>
                     {gameWon ? <p>You Win! The word was {secretWord}</p> : <p>You Lose! The word was {secretWord}</p>}
-                    <button onClick={handleShare}>Share Score</button>
+                    <button onClick={() => handleShare('facebook')}>Share on Facebook</button>
+                    <button onClick={() => handleShare('twitter')}>Share on Twitter</button>
+                    <button onClick={() => handleShare('clipboard')}>Copy Image</button>
                 </div>
             )}
-            <h2>Guesses</h2>
+            <h2>Leaderboard</h2>
             <ul>
                 {leaderboard.map((score, index) => (
                     <li key={index}>
