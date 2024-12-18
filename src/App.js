@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "./firebase"; // Correct import
+import words from "./words";
 import { collection, addDoc } from "firebase/firestore"; // Add necessary Firestore functions
 import netlifyIdentity from "netlify-identity-widget";
 import "./App.css";
