@@ -85,16 +85,15 @@ function App() {
         },
         body: JSON.stringify(newScore),
       })
-        .then(() => {
-          console.log("Score saved successfully!");
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Score submitted:", data);
         })
         .catch((error) => {
-          console.error("Error saving score: ", error);
+          console.error("Error submitting score:", error);
         });
-    } else if (newGuesses.every((guess) => guess !== "")) {
-      setGameOver(true);
-    }
-  };
+
+  
 
   const getTileColor = (letter, index, guess) => {
     if (!guess) return "";
