@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { db } from "./firebase";  // Correct import
+import { db } from "./firebase"; // Correct import
 import words from "./words";
 import { collection, addDoc } from "firebase/firestore"; // Add necessary Firestore functions
 import netlifyIdentity from "netlify-identity-widget";
 import "./App.css";
 import Leaderboard from './Leaderboard';
-
 
 function App() {
   const [secretWord, setSecretWord] = useState("");
@@ -13,10 +12,6 @@ function App() {
   const [currentGuess, setCurrentGuess] = useState("");
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
-  const [leaderboard, setLeaderboard] = useState(() => {
-    const storedLeaderboard = localStorage.getItem("soccrdLeaderboard");
-    return storedLeaderboard ? JSON.parse(storedLeaderboard) : [];
-  });
   const [user, setUser] = useState(null);
   const gridRef = useRef(null);
 
@@ -53,10 +48,6 @@ function App() {
       setUser(null);
     });
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("soccrdLeaderboard", JSON.stringify(leaderboard));
-  }, [leaderboard]);
 
   const handleInputChange = (e) => {
     setCurrentGuess(e.target.value.toUpperCase());
@@ -196,29 +187,4 @@ function App() {
             type="text"
             maxLength={secretWord.length}
             value={currentGuess}
-            onChange={handleInputChange}
-          />
-          <button onClick={handleGuessSubmit}>Submit</button>
-        </div>
-      )}
-
-      {gameOver && (
-        <div>
-          {gameWon ? (
-            <p>You Win! The word was {secretWord}</p>
-          ) : (
-            <p>You Lose! The word was {secretWord}</p>
-          )}
-          <div>
-            <button onClick={() => handleShare("clipboard")}>Copy Game State</button>
-            <button onClick={() => handleShare("twitter")}>Share on Twitter</button>
-            <button onClick={() => handleShare("facebook")}>Share on Facebook</button>
-            <Leaderboard />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default App;
+            onChange={hand
