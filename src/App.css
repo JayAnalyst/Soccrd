@@ -9,17 +9,17 @@ body {
 }
 
 .App {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  max-width: 500px;
-  width: 90%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: none; /* Remove max-width to make the background dynamic */
 }
 
 h1 {
@@ -28,18 +28,16 @@ h1 {
 }
 
 .guess-grid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto; /* Let the grid adjust to the content width */
 }
 
 .guess-row {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 5px; /* Adjust the gap between tiles */
 }
 
 .tile {
