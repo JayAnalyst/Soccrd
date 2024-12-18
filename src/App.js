@@ -198,13 +198,28 @@ function App() {
             )}
 
             <h2>Leaderboard</h2>
-            <ul>
-                {leaderboard.map((score, index) => (
-                    <li key={index}>
-                        {score.date} - {score.user}: {score.score} points ({score.guesses} guess{score.guesses > 1 ? 'es' : ''})
-                    </li>
-                ))}
-            </ul>
+<table className="leaderboard">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Score</th>
+            <th>Guesses</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {leaderboard.map((score, index) => (
+            <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{score.user}</td>
+                <td>{score.score}</td>
+                <td>{score.guesses}</td>
+                <td>{score.date}</td>
+            </tr>
+        ))}
+    </tbody>
+</table>
         </div>
     );
 }
