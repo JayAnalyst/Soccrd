@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { db } from "./firebase";
 import words from "./words";
-import { collection, addDoc, getDocs } from "firebase/firestore"; 
 import netlifyIdentity from "netlify-identity-widget";
 import "./App.css";
 import Leaderboard from './Leaderboard';
@@ -13,7 +11,6 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const [user, setUser] = useState(null);
-  const [leaderboard, setLeaderboard] = useState([]);
   const gridRef = useRef(null);
 
   const getWordOfTheDay = () => {
@@ -26,6 +23,7 @@ function App() {
 
   useEffect(() => {
     setSecretWord(getWordOfTheDay());
+
     netlifyIdentity.init();
     const currentUser = netlifyIdentity.currentUser();
 
@@ -47,20 +45,7 @@ function App() {
     netlifyIdentity.on("logout", () => {
       setUser(null);
     });
-
-    fetchLeaderboard();
   }, []);
-
-  const fetchLeaderboard = async () => {
-    try {
-      const leaderboardRef = collection(db, "leaderboard");
-      const snapshot = await getDocs(leaderboardRef);
-      const leaderboardData = snapshot.docs.map((doc) => doc.data());
-      setLeaderboard(leaderboardData);
-    } catch (error) {
-      console.error("Error fetching leaderboard:", error);
-    }
-  };
 
   const handleInputChange = (e) => {
     setCurrentGuess(e.target.value.toUpperCase());
@@ -92,10 +77,16 @@ function App() {
         date: new Date().toLocaleDateString(),
       };
 
-      addDoc(collection(db, "leaderboard"), newScore)
+      // Submit score to the Netlify function
+      fetch("/.netlify/functions/submitScore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newScore),
+      })
         .then(() => {
           console.log("Score saved successfully!");
-          fetchLeaderboard(); // Refresh leaderboard after adding score
         })
         .catch((error) => {
           console.error("Error saving score: ", error);
@@ -117,7 +108,7 @@ function App() {
       .filter((guess) => guess !== "")
       .map((guess, index) => {
         return guess
-          .split("")
+          .split(" ")
           .map((letter, letterIndex) => {
             const color = getTileColor(letter, letterIndex, guess);
             if (color === "green") return "🟩";
@@ -217,7 +208,7 @@ function App() {
             <button onClick={() => handleShare("clipboard")}>Copy Game State</button>
             <button onClick={() => handleShare("twitter")}>Share on Twitter</button>
             <button onClick={() => handleShare("facebook")}>Share on Facebook</button>
-            <Leaderboard leaderboard={leaderboard} />
+            <Leaderboard />
           </div>
         </div>
       )}
