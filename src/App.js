@@ -56,7 +56,7 @@ function App() {
             const score = guessIndex === 0 ? 10 : guessIndex === 1 ? 8 : guessIndex === 2 ? 5 : guessIndex === 3 ? 3 : 1;
 
             const newScore = {
-                user: user ? user.email : 'Anonymous',
+                user: user ? user.username : 'Anonymous',
                 guesses: guessIndex + 1,
                 score,
                 date: new Date().toLocaleDateString()
@@ -115,7 +115,10 @@ function App() {
     const handleLogin = () => {
         netlifyIdentity.open();
         netlifyIdentity.on('login', user => {
-            setUser(user);
+            setUser({
+                email: user.email,
+                username: user.user_metadata.full_name || user.email.split('@')[0]  // Use full name if available, otherwise part before @
+            });
             netlifyIdentity.close();
         });
     };
@@ -129,11 +132,11 @@ function App() {
 
     return (
         <div className="App" style={{ "--word-length": secretWord.length }}>
-            <h1>Soccrd - Guess the Football Team</h1>
+            <h1>Soccrd - Guess the team</h1>
 
             {user ? (
                 <div className="user-controls">
-                    <p>Welcome, {user.email}</p>
+                    <p>Welcome, {user.username}</p>
                     <button onClick={handleLogout}>Log Out</button>
                 </div>
             ) : (
