@@ -101,7 +101,7 @@ function App() {
 
     return (
         <div className="App" style={{ "--word-length": secretWord.length }}>
-            <h1>Soccrd</h1>
+            <h1>Soccrd - Guess the team</h1>
             <div className="guess-grid" ref={gridRef}>
                 {guesses.map((guess, guessIndex) => (
                     <div key={guessIndex} className="guess-row">
