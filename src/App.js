@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "./firebase"; // Correct import
 import words from "./words";
-import { collection, addDoc } from "firebase/firestore"; // Add necessary Firestore functions
+import { collection, addDoc, getDocs } from "firebase/firestore"; // Add Firestore functions
 import netlifyIdentity from "netlify-identity-widget";
 import "./App.css";
 import Leaderboard from './Leaderboard';
@@ -13,6 +13,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const [user, setUser] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]); // State for storing leaderboard data
   const gridRef = useRef(null);
 
   const getWordOfTheDay = () => {
@@ -49,6 +50,21 @@ function App() {
     });
   }, []);
 
+  useEffect(() => {
+    // Fetch leaderboard when component mounts or after a new score is added
+    const fetchLeaderboard = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "leaderboard"));
+        const leaderboardData = querySnapshot.docs.map(doc => doc.data());
+        setLeaderboard(leaderboardData);
+      } catch (error) {
+        console.error("Error fetching leaderboard: ", error);
+      }
+    };
+
+    fetchLeaderboard();
+  }, []); // This effect runs only once when the component mounts
+
   const handleInputChange = (e) => {
     setCurrentGuess(e.target.value.toUpperCase());
   };
@@ -83,6 +99,8 @@ function App() {
       addDoc(collection(db, "leaderboard"), newScore)
         .then(() => {
           console.log("Score saved successfully!");
+          // After saving the score, refresh the leaderboard data
+          fetchLeaderboard();
         })
         .catch((error) => {
           console.error("Error saving score: ", error);
@@ -204,7 +222,7 @@ function App() {
             <button onClick={() => handleShare("clipboard")}>Copy Game State</button>
             <button onClick={() => handleShare("twitter")}>Share on Twitter</button>
             <button onClick={() => handleShare("facebook")}>Share on Facebook</button>
-            <Leaderboard />
+            <Leaderboard leaderboard={leaderboard} /> {/* Pass leaderboard data */}
           </div>
         </div>
       )}
