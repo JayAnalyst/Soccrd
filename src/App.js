@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import words from './words';
 import './App.css';
+import netlifyIdentity from 'netlify-identity-widget';
 
 function App() {
     const [secretWord, setSecretWord] = useState('');
@@ -12,6 +13,7 @@ function App() {
         const storedLeaderboard = localStorage.getItem('soccrdLeaderboard');
         return storedLeaderboard ? JSON.parse(storedLeaderboard) : [];
     });
+    const [user, setUser] = useState(null);
     const gridRef = useRef(null);
 
     // Function to generate the word of the day based on the current date
@@ -23,6 +25,7 @@ function App() {
 
     useEffect(() => {
         setSecretWord(getWordOfTheDay());  // Set the word of the day on first render
+        netlifyIdentity.init();
     }, []);
 
     useEffect(() => {
@@ -40,15 +43,26 @@ function App() {
         }
 
         const newGuesses = [...guesses];
-        newGuesses[guesses.findIndex(guess => guess === '')] = currentGuess;
+        const guessIndex = guesses.findIndex(guess => guess === '');
+        newGuesses[guessIndex] = currentGuess;
         setGuesses(newGuesses);
         setCurrentGuess('');
 
         if (currentGuess === secretWord) {
             setGameOver(true);
             setGameWon(true);
-            const newScore = { guesses: guesses.filter(guess => guess !== '').length + 1, date: new Date().toLocaleDateString() };
-            setLeaderboard(prevLeaderboard => [...prevLeaderboard, newScore].sort((a, b) => a.guesses - b.guesses));
+
+            // Calculate score
+            const score = guessIndex === 0 ? 10 : guessIndex === 1 ? 8 : guessIndex === 2 ? 5 : guessIndex === 3 ? 3 : 1;
+
+            const newScore = {
+                user: user ? user.email : 'Anonymous',
+                guesses: guessIndex + 1,
+                score,
+                date: new Date().toLocaleDateString()
+            };
+
+            setLeaderboard(prevLeaderboard => [...prevLeaderboard, newScore].sort((a, b) => b.score - a.score));
         } else if (newGuesses.every(guess => guess !== '')) {
             setGameOver(true);
         }
@@ -61,7 +75,6 @@ function App() {
         return 'red';
     };
 
-    // Create a Wordle-style share string
     const generateShareString = () => {
         return guesses
             .filter(guess => guess !== '') // Remove empty guesses
@@ -99,9 +112,34 @@ function App() {
         }
     };
 
+    const handleLogin = () => {
+        netlifyIdentity.open();
+        netlifyIdentity.on('login', user => {
+            setUser(user);
+            netlifyIdentity.close();
+        });
+    };
+
+    const handleLogout = () => {
+        netlifyIdentity.logout();
+        netlifyIdentity.on('logout', () => {
+            setUser(null);
+        });
+    };
+
     return (
         <div className="App" style={{ "--word-length": secretWord.length }}>
-            <h1>Soccrd - Guess the team</h1>
+            <h1>Soccrd - Guess the Football Team</h1>
+
+            {user ? (
+                <div className="user-controls">
+                    <p>Welcome, {user.email}</p>
+                    <button onClick={handleLogout}>Log Out</button>
+                </div>
+            ) : (
+                <button onClick={handleLogin}>Log In / Register</button>
+            )}
+
             <div className="guess-grid" ref={gridRef}>
                 {guesses.map((guess, guessIndex) => (
                     <div key={guessIndex} className="guess-row">
@@ -113,12 +151,14 @@ function App() {
                     </div>
                 ))}
             </div>
+
             {!gameOver && (
                 <div>
                     <input type="text" maxLength={secretWord.length} value={currentGuess} onChange={handleInputChange} />
                     <button onClick={handleGuessSubmit}>Submit</button>
                 </div>
             )}
+
             {gameOver && (
                 <div>
                     {gameWon ? <p>You Win! The word was {secretWord}</p> : <p>You Lose! The word was {secretWord}</p>}
@@ -129,11 +169,12 @@ function App() {
                     </div>
                 </div>
             )}
+
             <h2>Leaderboard</h2>
             <ul>
                 {leaderboard.map((score, index) => (
                     <li key={index}>
-                        {score.date}: Solved in {score.guesses} guess{score.guesses > 1 ? 'es' : ''}
+                        {score.date} - {score.user}: {score.score} points ({score.guesses} guess{score.guesses > 1 ? 'es' : ''})
                     </li>
                 ))}
             </ul>
