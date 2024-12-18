@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import words from './words';
 import './App.css';
-import html2canvas from 'html2canvas';
 
 function App() {
     const [secretWord, setSecretWord] = useState('');
-    const [guesses, setGuesses] = useState([]); // Dynamic guesses
+    const [guesses, setGuesses] = useState(['', '', '', '', '', '']);
     const [currentGuess, setCurrentGuess] = useState('');
     const [gameOver, setGameOver] = useState(false);
     const [gameWon, setGameWon] = useState(false);
@@ -34,16 +33,17 @@ function App() {
             return;
         }
 
-        const newGuesses = [...guesses, currentGuess]; // Add the current guess to the list
+        const newGuesses = [...guesses];
+        newGuesses[guesses.findIndex(guess => guess === '')] = currentGuess;
         setGuesses(newGuesses);
         setCurrentGuess('');
 
         if (currentGuess === secretWord) {
             setGameOver(true);
             setGameWon(true);
-            const newScore = { guesses: newGuesses.length, date: new Date().toLocaleDateString() };
+            const newScore = { guesses: guesses.filter(guess => guess !== '').length + 1, date: new Date().toLocaleDateString() };
             setLeaderboard(prevLeaderboard => [...prevLeaderboard, newScore].sort((a, b) => a.guesses - b.guesses));
-        } else if (newGuesses.length === 6) { // 6 guesses max
+        } else if (newGuesses.every(guess => guess !== '')) {
             setGameOver(true);
         }
     };
@@ -55,29 +55,41 @@ function App() {
         return 'red';
     };
 
-    const handleShare = async (platform) => {
-        if (!gridRef.current) return;
+    // Create a Wordle-style share string
+    const generateShareString = () => {
+        return guesses
+            .filter(guess => guess !== '') // Remove empty guesses
+            .map((guess, index) => {
+                return guess.split('')
+                    .map((letter, letterIndex) => {
+                        const color = getTileColor(letter, letterIndex, guess);
+                        if (color === 'green') return '🟩';
+                        if (color === 'yellow') return '🟨';
+                        return '⬛'; // red or incorrect letter
+                    })
+                    .join('');
+            })
+            .join('\n');
+    };
 
-        try {
-            const canvas = await html2canvas(gridRef.current, { backgroundColor: null });
-            const dataURL = canvas.toDataURL('image/png');
+    const handleShare = (platform) => {
+        const shareText = generateShareString();
 
-            if (platform === 'clipboard') {
-                try {
-                    await navigator.clipboard.write(new Blob([await fetch(dataURL).then(r => r.blob())], { type: 'image/png' }));
-                    alert("Image copied to clipboard!");
-                } catch (err) {
-                    console.error("Failed to copy: ", err);
-                    alert("Failed to copy image to clipboard. Your browser may not support this feature.");
-                }
-            } else if (platform === 'twitter') {
-                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}`, '_blank');
-            } else if (platform === 'facebook') {
-                window.open(`https://www.facebook.com/sharer/sharer.php`, '_blank');
-            }
-        } catch (error) {
-            console.error('Error capturing or sharing image:', error);
-            alert("An error occurred while sharing.");
+        if (platform === 'clipboard') {
+            navigator.clipboard.writeText(shareText)
+                .then(() => {
+                    alert('Game state copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy game state to clipboard.');
+                });
+        } else if (platform === 'twitter') {
+            const tweetText = `I played Soccrd!\n\n${encodeURIComponent(shareText)}`;
+            window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
+        } else if (platform === 'facebook') {
+            const fbText = `I played Soccrd!\n\n${encodeURIComponent(shareText)}`;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${fbText}`, '_blank');
         }
     };
 
@@ -85,16 +97,13 @@ function App() {
         <div className="App" style={{ "--word-length": secretWord.length }}>
             <h1>Soccrd</h1>
             <div className="guess-grid" ref={gridRef}>
-                {Array.from({ length: 6 }).map((_, guessIndex) => (
+                {guesses.map((guess, guessIndex) => (
                     <div key={guessIndex} className="guess-row">
-                        {secretWord.split('').map((letter, letterIndex) => {
-                            const guess = guesses[guessIndex] || ''; // Get the current guess
-                            return (
-                                <div key={letterIndex} className={`tile ${getTileColor(guess[letterIndex], letterIndex, guess)}`}>
-                                    {guess && guess[letterIndex]}
-                                </div>
-                            );
-                        })}
+                        {secretWord.split('').map((letter, letterIndex) => (
+                            <div key={letterIndex} className={`tile ${getTileColor(guess[letterIndex], letterIndex, guess)}`}>
+                                {guess && guess[letterIndex]}
+                            </div>
+                        ))}
                     </div>
                 ))}
             </div>
@@ -108,7 +117,7 @@ function App() {
                 <div>
                     {gameWon ? <p>You Win! The word was {secretWord}</p> : <p>You Lose! The word was {secretWord}</p>}
                     <div>
-                        <button onClick={() => handleShare('clipboard')}>Copy Image</button>
+                        <button onClick={() => handleShare('clipboard')}>Copy Game State</button>
                         <button onClick={() => handleShare('twitter')}>Share on Twitter</button>
                         <button onClick={() => handleShare('facebook')}>Share on Facebook</button>
                     </div>
