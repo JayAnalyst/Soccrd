@@ -1,43 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { db } from './firebase';  // Firebase configuration
-import { collection, getDocs } from 'firebase/firestore'; // Firestore functions
+import React, { useEffect, useState } from "react";
 
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      const querySnapshot = await getDocs(collection(db, "leaderboard"));
-      const leaderboardData = querySnapshot.docs.map(doc => doc.data());
-      setLeaderboard(leaderboardData);
-    };
-
-    fetchLeaderboard();
-  }, []);  // Runs once when the component is mounted
+    // Fetch leaderboard data from the Netlify function
+    fetch("/.netlify/functions/getLeaderboard")
+      .then((response) => response.json())
+      .then((data) => {
+        setLeaderboard(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching leaderboard:", error);
+      });
+  }, []);
 
   return (
-    <div>
+    <div className="leaderboard">
       <h2>Leaderboard</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Guesses</th>
-            <th>Score</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboard.map((score, index) => (
-            <tr key={index}>
-              <td>{score.user}</td>
-              <td>{score.guesses}</td>
-              <td>{score.score}</td>
-              <td>{score.date}</td>
+      {leaderboard.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              <th>Guesses</th>
+              <th>Score</th>
+              <th>Date</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {leaderboard.map((entry, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{entry.user}</td>
+                <td>{entry.guesses}</td>
+                <td>{entry.score}</td>
+                <td>{entry.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No leaderboard data yet.</p>
+      )}
     </div>
   );
 };
