@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { db } from './firebase';  // Import Firebase Firestore
+import { db } from './firebase';  // Firebase configuration
+import { collection, getDocs } from 'firebase/firestore'; // Firestore functions
 
-function Leaderboard() {
+const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
-    // Fetch the leaderboard from Firestore and sort by score
     const fetchLeaderboard = async () => {
-      const snapshot = await db.collection('leaderboard').orderBy('score', 'desc').limit(10).get();
-      const leaderboardData = snapshot.docs.map(doc => doc.data());
+      const querySnapshot = await getDocs(collection(db, "leaderboard"));
+      const leaderboardData = querySnapshot.docs.map(doc => doc.data());
       setLeaderboard(leaderboardData);
     };
 
     fetchLeaderboard();
-  }, []);  // Empty dependency array to fetch on mount
+  }, []);  // Runs once when the component is mounted
 
   return (
     <div>
-      <h2>Global Leaderboard</h2>
-      <ul>
-        {leaderboard.map((score, index) => (
-          <li key={index}>
-            {index + 1}. {score.user} - {score.score} ({score.date})
-          </li>
-        ))}
-      </ul>
+      <h2>Leaderboard</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Guesses</th>
+            <th>Score</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {leaderboard.map((score, index) => (
+            <tr key={index}>
+              <td>{score.user}</td>
+              <td>{score.guesses}</td>
+              <td>{score.score}</td>
+              <td>{score.date}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
 
 export default Leaderboard;
