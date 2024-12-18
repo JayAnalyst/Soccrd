@@ -92,8 +92,11 @@ function App() {
         .catch((error) => {
           console.error("Error submitting score:", error);
         });
-
-  
+    } else if (guesses.every((guess) => guess !== "")) {
+      // No more guesses left, game over
+      setGameOver(true);
+    }
+  };
 
   const getTileColor = (letter, index, guess) => {
     if (!guess) return "";
@@ -107,7 +110,7 @@ function App() {
       .filter((guess) => guess !== "")
       .map((guess, index) => {
         return guess
-          .split(" ")
+          .split("")
           .map((letter, letterIndex) => {
             const color = getTileColor(letter, letterIndex, guess);
             if (color === "green") return "🟩";
