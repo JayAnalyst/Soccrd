@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import words from './words';
 import './App.css';
@@ -56,43 +57,40 @@ function App() {
         return 'red';
     };
 
-    const handleShare = async (platform) => {
-        if (!gridRef.current) return;
+   const handleShare = async (platform) => {
+    if (!gridRef.current) return;
 
-        try {
-            const canvas = await html2canvas(gridRef.current, { backgroundColor: null });
-            const dataURL = canvas.toDataURL('image/png');
+    try {
+        const canvas = await html2canvas(gridRef.current, { backgroundColor: null });
+        const dataURL = canvas.toDataURL('image/png');
 
-            if (platform === 'clipboard') {
-                try {
-                    const blob = await fetch(dataURL).then(r => r.blob());
-                    if (navigator.clipboard && window.ClipboardItem) {
-                        const clipboardItem = new ClipboardItem({
-                            'image/png': blob
-                        });
-                        await navigator.clipboard.write([clipboardItem]);
-                        alert("Image copied to clipboard!");
-                    } else {
-                        alert("Clipboard API not supported. Providing image download instead.");
-                        const downloadLink = document.createElement('a');
-                        downloadLink.href = dataURL;
-                        downloadLink.download = 'soccrd_image.png';
-                        downloadLink.click();
-                    }
-                } catch (err) {
-                    console.error("Failed to copy: ", err);
-                    alert("Failed to copy image to clipboard.");
-                }
-            } else if (platform === 'twitter') {
-                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}`, '_blank');
-            } else if (platform === 'facebook') {
-                window.open(`https://www.facebook.com/sharer/sharer.php`, '_blank');
+        if (platform === 'clipboard') {
+            try {
+                const blob = await fetch(dataURL).then(r => r.blob());
+                const clipboardItem = new ClipboardItem({
+                    'image/png': blob
+                });
+                await navigator.clipboard.write([clipboardItem]);
+                alert("Image copied to clipboard!");
+            } catch (err) {
+                console.error("Failed to copy: ", err);
+                alert("Failed to copy image to clipboard. Your browser may not support this feature.");
+                // Optional: Offer to let the user download the image instead
+                const downloadLink = document.createElement('a');
+                downloadLink.href = dataURL;
+                downloadLink.download = 'soccrd_image.png';
+                downloadLink.click();
             }
-        } catch (error) {
-            console.error('Error capturing or sharing image:', error);
-            alert("An error occurred while sharing.");
+        } else if (platform === 'twitter') {
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}`, '_blank');
+        } else if (platform === 'facebook') {
+            window.open(`https://www.facebook.com/sharer/sharer.php`, '_blank');
         }
-    };
+    } catch (error) {
+        console.error('Error capturing or sharing image:', error);
+        alert("An error occurred while sharing.");
+    }
+};
 
     return (
         <div className="App" style={{ "--word-length": secretWord.length }}>
