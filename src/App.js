@@ -239,9 +239,10 @@ function App() {
             <button onClick={() => handleShare("facebook")}>
               Share on Facebook
             </button>
-                <Leaderboard />
           </div>
+          <Leaderboard /> {/* This is now properly wrapped */}
         </div>
+      )}
     </div>
   );
 }
