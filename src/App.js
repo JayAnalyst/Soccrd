@@ -3,6 +3,7 @@ import words from "./words";
 import "./App.css";
 import netlifyIdentity from "netlify-identity-widget";
 import { db } from "./firebase";
+import Leaderboard from './Leaderboard'; 
 
 function App() {
   const [secretWord, setSecretWord] = useState("");
@@ -238,33 +239,9 @@ function App() {
             <button onClick={() => handleShare("facebook")}>
               Share on Facebook
             </button>
+                <Leaderboard />
           </div>
         </div>
-      )}
-
-      <h2>Leaderboard</h2>
-      <table className="leaderboard">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Username</th>
-            <th>Score</th>
-            <th>Guesses</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboard.map((score, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{score.user}</td>
-              <td>{score.score}</td>
-              <td>{score.guesses}</td>
-              <td>{score.date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
