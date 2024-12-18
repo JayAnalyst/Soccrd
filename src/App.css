@@ -44,23 +44,20 @@ h1 {
 
 .tile {
   flex-basis: calc(100% / var(--word-length));
-  flex-grow: 0;
-  flex-shrink: 0;
-  height: 0;
-  padding-top: calc(100% / var(--word-length));
-  border: 2px solid #ddd;
-  margin: 4px;
+  aspect-ratio: 1 / 1; /* Ensures the tile is a square */
   display: flex;
   justify-content: center; /* Horizontal centering */
   align-items: center; /* Vertical centering */
   font-size: calc(min(4vw, 2rem));
   font-weight: bold;
   text-transform: uppercase;
+  border: 2px solid #ddd;
+  margin: 4px;
   border-radius: 4px;
   transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
   box-sizing: border-box;
-  overflow: hidden;
 }
+
 
 .tile.green {
   background-color: #6aaa64;
