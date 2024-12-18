@@ -14,9 +14,15 @@ function App() {
     });
     const gridRef = useRef(null);
 
+    // Function to generate the word of the day based on the current date
+    const getWordOfTheDay = () => {
+        const date = new Date();
+        const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);  // Day of the year
+        return words[dayOfYear % words.length].toUpperCase();  // Ensure we always get a word from the list
+    };
+
     useEffect(() => {
-        const randomIndex = Math.floor(Math.random() * words.length);
-        setSecretWord(words[randomIndex].toUpperCase());
+        setSecretWord(getWordOfTheDay());  // Set the word of the day on first render
     }, []);
 
     useEffect(() => {
