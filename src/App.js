@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "./firebase"; // Correct import
-import words from "./words";
 import { collection, addDoc } from "firebase/firestore"; // Add necessary Firestore functions
 import netlifyIdentity from "netlify-identity-widget";
 import "./App.css";
@@ -187,4 +186,29 @@ function App() {
             type="text"
             maxLength={secretWord.length}
             value={currentGuess}
-            onChange={hand
+            onChange={handleInputChange}
+          />
+          <button onClick={handleGuessSubmit}>Submit</button>
+        </div>
+      )}
+
+      {gameOver && (
+        <div>
+          {gameWon ? (
+            <p>You Win! The word was {secretWord}</p>
+          ) : (
+            <p>You Lose! The word was {secretWord}</p>
+          )}
+          <div>
+            <button onClick={() => handleShare("clipboard")}>Copy Game State</button>
+            <button onClick={() => handleShare("twitter")}>Share on Twitter</button>
+            <button onClick={() => handleShare("facebook")}>Share on Facebook</button>
+            <Leaderboard />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
