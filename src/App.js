@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import words from "./words";
-import "./App.css";
+import { db } from "./firebase";  // Correct import
+import { collection, addDoc } from "firebase/firestore"; // Add necessary Firestore functions
 import netlifyIdentity from "netlify-identity-widget";
-import { db } from "./firebase";
-import Leaderboard from './Leaderboard'; 
+import "./App.css";
+import Leaderboard from './Leaderboard';
 
 function App() {
   const [secretWord, setSecretWord] = useState("");
@@ -18,17 +18,16 @@ function App() {
   const [user, setUser] = useState(null);
   const gridRef = useRef(null);
 
-  // Function to generate the word of the day based on the current date
   const getWordOfTheDay = () => {
     const date = new Date();
     const dayOfYear = Math.floor(
       (date - new Date(date.getFullYear(), 0, 0)) / 86400000,
-    ); // Day of the year
-    return words[dayOfYear % words.length].toUpperCase(); // Ensure we always get a word from the list
+    );
+    return words[dayOfYear % words.length].toUpperCase();
   };
 
   useEffect(() => {
-    setSecretWord(getWordOfTheDay()); // Set the word of the day on first render
+    setSecretWord(getWordOfTheDay());
 
     netlifyIdentity.init();
     const currentUser = netlifyIdentity.currentUser();
@@ -36,9 +35,7 @@ function App() {
     if (currentUser) {
       setUser({
         email: currentUser.email,
-        username:
-          currentUser.user_metadata.full_name ||
-          currentUser.email.split("@")[0],
+        username: currentUser.user_metadata.full_name || currentUser.email.split("@")[0],
       });
     }
 
@@ -80,17 +77,8 @@ function App() {
       setGameWon(true);
 
       const score =
-        guessIndex === 0
-          ? 10
-          : guessIndex === 1
-            ? 8
-            : guessIndex === 2
-              ? 5
-              : guessIndex === 3
-                ? 3
-                : 1;
+        guessIndex === 0 ? 10 : guessIndex === 1 ? 8 : guessIndex === 2 ? 5 : guessIndex === 3 ? 3 : 1;
 
-      // Add score to Firebase Firestore
       const newScore = {
         user: user ? user.username : "Anonymous",
         guesses: guessIndex + 1,
@@ -98,9 +86,8 @@ function App() {
         date: new Date().toLocaleDateString(),
       };
 
-      // Store the new score in Firestore
-      db.collection("leaderboard")
-        .add(newScore)
+      // Add score to Firestore
+      addDoc(collection(db, "leaderboard"), newScore)
         .then(() => {
           console.log("Score saved successfully!");
         })
@@ -121,7 +108,7 @@ function App() {
 
   const generateShareString = () => {
     return guesses
-      .filter((guess) => guess !== "") // Remove empty guesses
+      .filter((guess) => guess !== "")
       .map((guess, index) => {
         return guess
           .split("")
@@ -129,7 +116,7 @@ function App() {
             const color = getTileColor(letter, letterIndex, guess);
             if (color === "green") return "🟩";
             if (color === "yellow") return "🟨";
-            return "⬛"; // red or incorrect letter
+            return "⬛";
           })
           .join("");
       })
@@ -151,16 +138,10 @@ function App() {
         });
     } else if (platform === "twitter") {
       const tweetText = `I played Soccrd!\n\n${encodeURIComponent(shareText)}`;
-      window.open(
-        `https://twitter.com/intent/tweet?text=${tweetText}`,
-        "_blank",
-      );
+      window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, "_blank");
     } else if (platform === "facebook") {
       const fbText = `I played Soccrd!\n\n${encodeURIComponent(shareText)}`;
-      window.open(
-        `https://www.facebook.com/sharer/sharer.php?u=${fbText}`,
-        "_blank",
-      );
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${fbText}`, "_blank");
     }
   };
 
@@ -169,7 +150,7 @@ function App() {
     netlifyIdentity.on("login", (user) => {
       setUser({
         email: user.email,
-        username: user.user_metadata.full_name || user.email.split("@")[0], // Use full name if available, otherwise part before @
+        username: user.user_metadata.full_name || user.email.split("@")[0],
       });
       netlifyIdentity.close();
     });
@@ -199,10 +180,7 @@ function App() {
         {guesses.map((guess, guessIndex) => (
           <div key={guessIndex} className="guess-row">
             {secretWord.split("").map((letter, letterIndex) => (
-              <div
-                key={letterIndex}
-                className={`tile ${getTileColor(guess[letterIndex], letterIndex, guess)}`}
-              >
+              <div key={letterIndex} className={`tile ${getTileColor(guess[letterIndex], letterIndex, guess)}`}>
                 {guess && guess[letterIndex]}
               </div>
             ))}
@@ -230,17 +208,11 @@ function App() {
             <p>You Lose! The word was {secretWord}</p>
           )}
           <div>
-            <button onClick={() => handleShare("clipboard")}>
-              Copy Game State
-            </button>
-            <button onClick={() => handleShare("twitter")}>
-              Share on Twitter
-            </button>
-            <button onClick={() => handleShare("facebook")}>
-              Share on Facebook
-            </button>
+            <button onClick={() => handleShare("clipboard")}>Copy Game State</button>
+            <button onClick={() => handleShare("twitter")}>Share on Twitter</button>
+            <button onClick={() => handleShare("facebook")}>Share on Facebook</button>
+            <Leaderboard />
           </div>
-          <Leaderboard /> {/* This is now properly wrapped */}
         </div>
       )}
     </div>
