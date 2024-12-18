@@ -33,7 +33,6 @@ h1 {
   align-items: center;
   width: 100%;
   margin-bottom: 20px;
-  
 }
 
 .guess-row {
@@ -58,7 +57,6 @@ h1 {
   transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
   box-sizing: border-box;
 }
-
 
 .tile.green {
   background-color: #6aaa64;
@@ -120,5 +118,140 @@ button:hover {
   .tile {
       font-size: calc(min(6vw, 1.5rem));
       margin: 2px;
+  }
+}
+
+/* Additional Styles for Game Grid and Share Buttons */
+
+/* Styling for the guess grid */
+.guess-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.guess-row {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.tile {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+
+.tile.green {
+  background-color: #6aaa64;
+  color: white;
+}
+
+.tile.yellow {
+  background-color: #c9b458;
+  color: white;
+}
+
+.tile.red {
+  background-color: #787c7e;
+  color: white;
+}
+
+/* Input and button styling */
+input[type="text"] {
+  padding: 10px;
+  font-size: 1.2rem;
+  width: 100%;
+  margin-top: 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+}
+
+button {
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Share buttons container */
+button + button {
+  margin-top: 5px;
+}
+
+button + button:hover {
+  background-color: #3b8b43;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+ul {
+  list-style-type: none;
+}
+
+li {
+  margin: 5px 0;
+}
+
+/* Share options styling */
+button.share-btn {
+  background-color: #0084ff;
+  margin-top: 10px;
+}
+
+button.share-btn:hover {
+  background-color: #0073e6;
+}
+
+/* Adjustments for leaderboard display */
+ul {
+  padding: 0;
+  margin-top: 20px;
+  text-align: left;
+}
+
+/* Responsive design */
+@media (max-width: 500px) {
+  .App {
+    padding: 15px;
+    width: 100%;
+  }
+
+  .tile {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1rem;
   }
 }
