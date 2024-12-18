@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import words from './words';
 import './App.css';
@@ -6,7 +5,7 @@ import html2canvas from 'html2canvas';
 
 function App() {
     const [secretWord, setSecretWord] = useState('');
-    const [guesses, setGuesses] = useState(['', '', '', '', '', '']);
+    const [guesses, setGuesses] = useState([]); // Dynamic guesses
     const [currentGuess, setCurrentGuess] = useState('');
     const [gameOver, setGameOver] = useState(false);
     const [gameWon, setGameWon] = useState(false);
@@ -35,17 +34,16 @@ function App() {
             return;
         }
 
-        const newGuesses = [...guesses];
-        newGuesses[guesses.findIndex(guess => guess === '')] = currentGuess;
+        const newGuesses = [...guesses, currentGuess]; // Add the current guess to the list
         setGuesses(newGuesses);
         setCurrentGuess('');
 
         if (currentGuess === secretWord) {
             setGameOver(true);
             setGameWon(true);
-            const newScore = { guesses: guesses.filter(guess => guess !== '').length + 1, date: new Date().toLocaleDateString() };
+            const newScore = { guesses: newGuesses.length, date: new Date().toLocaleDateString() };
             setLeaderboard(prevLeaderboard => [...prevLeaderboard, newScore].sort((a, b) => a.guesses - b.guesses));
-        } else if (newGuesses.every(guess => guess !== '')) {
+        } else if (newGuesses.length === 6) { // 6 guesses max
             setGameOver(true);
         }
     };
@@ -57,52 +55,46 @@ function App() {
         return 'red';
     };
 
-   const handleShare = async (platform) => {
-    if (!gridRef.current) return;
+    const handleShare = async (platform) => {
+        if (!gridRef.current) return;
 
-    try {
-        const canvas = await html2canvas(gridRef.current, { backgroundColor: null });
-        const dataURL = canvas.toDataURL('image/png');
+        try {
+            const canvas = await html2canvas(gridRef.current, { backgroundColor: null });
+            const dataURL = canvas.toDataURL('image/png');
 
-        if (platform === 'clipboard') {
-            try {
-                const blob = await fetch(dataURL).then(r => r.blob());
-                const clipboardItem = new ClipboardItem({
-                    'image/png': blob
-                });
-                await navigator.clipboard.write([clipboardItem]);
-                alert("Image copied to clipboard!");
-            } catch (err) {
-                console.error("Failed to copy: ", err);
-                alert("Failed to copy image to clipboard. Your browser may not support this feature.");
-                // Optional: Offer to let the user download the image instead
-                const downloadLink = document.createElement('a');
-                downloadLink.href = dataURL;
-                downloadLink.download = 'soccrd_image.png';
-                downloadLink.click();
+            if (platform === 'clipboard') {
+                try {
+                    await navigator.clipboard.write(new Blob([await fetch(dataURL).then(r => r.blob())], { type: 'image/png' }));
+                    alert("Image copied to clipboard!");
+                } catch (err) {
+                    console.error("Failed to copy: ", err);
+                    alert("Failed to copy image to clipboard. Your browser may not support this feature.");
+                }
+            } else if (platform === 'twitter') {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}`, '_blank');
+            } else if (platform === 'facebook') {
+                window.open(`https://www.facebook.com/sharer/sharer.php`, '_blank');
             }
-        } else if (platform === 'twitter') {
-            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}`, '_blank');
-        } else if (platform === 'facebook') {
-            window.open(`https://www.facebook.com/sharer/sharer.php`, '_blank');
+        } catch (error) {
+            console.error('Error capturing or sharing image:', error);
+            alert("An error occurred while sharing.");
         }
-    } catch (error) {
-        console.error('Error capturing or sharing image:', error);
-        alert("An error occurred while sharing.");
-    }
-};
+    };
 
     return (
         <div className="App" style={{ "--word-length": secretWord.length }}>
             <h1>Soccrd</h1>
             <div className="guess-grid" ref={gridRef}>
-                {guesses.map((guess, guessIndex) => (
+                {Array.from({ length: 6 }).map((_, guessIndex) => (
                     <div key={guessIndex} className="guess-row">
-                        {secretWord.split('').map((letter, letterIndex) => (
-                            <div key={letterIndex} className={`tile ${getTileColor(guess[letterIndex], letterIndex, guess)}`}>
-                                {guess && guess[letterIndex]}
-                            </div>
-                        ))}
+                        {secretWord.split('').map((letter, letterIndex) => {
+                            const guess = guesses[guessIndex] || ''; // Get the current guess
+                            return (
+                                <div key={letterIndex} className={`tile ${getTileColor(guess[letterIndex], letterIndex, guess)}`}>
+                                    {guess && guess[letterIndex]}
+                                </div>
+                            );
+                        })}
                     </div>
                 ))}
             </div>
