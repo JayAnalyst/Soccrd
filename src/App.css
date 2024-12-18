@@ -51,8 +51,8 @@ h1 {
   border: 2px solid #ddd;
   margin: 4px;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
   font-size: calc(min(4vw, 2rem));
   font-weight: bold;
   text-transform: uppercase;
