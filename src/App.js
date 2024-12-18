@@ -63,15 +63,26 @@ function App() {
             const canvas = await html2canvas(gridRef.current, { backgroundColor: null });
             const dataURL = canvas.toDataURL('image/png');
 
-            if (platform === 'facebook') {
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(dataURL)}`, '_blank');
-            } else if (platform === 'twitter') {
-                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}&url=${encodeURIComponent(dataURL)}`, '_blank');
-            } else if (platform === 'clipboard') {
-                navigator.clipboard.writeText(dataURL).then(() => alert("Image copied to clipboard!")).catch(err => {
+            if (platform === 'clipboard') {
+                try {
+                    await navigator.clipboard.write(new Blob([await fetch(dataURL).then(r => r.blob())], { type: 'image/png' }));
+                    alert("Image copied to clipboard!");
+                } catch (err) {
                     console.error("Failed to copy: ", err);
-                    alert("Failed to copy image to clipboard.");
-                });
+                    alert("Failed to copy image to clipboard. Your browser may not support this feature.");
+                }
+            } else if (platform === 'twitter') {
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = 'soccrd_share.png';
+                link.click();
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I played Soccrd!")}`, '_blank');
+            } else if (platform === 'facebook') {
+                const link = document.createElement('a');
+                link.href = dataURL;
+                link.download = 'soccrd_share.png';
+                link.click();
+                window.open(`https://www.facebook.com/sharer/sharer.php`, '_blank');
             }
         } catch (error) {
             console.error('Error capturing or sharing image:', error);
@@ -103,9 +114,9 @@ function App() {
                 <div>
                     {gameWon ? <p>You Win! The word was {secretWord}</p> : <p>You Lose! The word was {secretWord}</p>}
                     <div>
-                        <button onClick={() => handleShare('facebook')}>Share on Facebook</button>
-                        <button onClick={() => handleShare('twitter')}>Share on Twitter</button>
                         <button onClick={() => handleShare('clipboard')}>Copy Image</button>
+                        <button onClick={() => handleShare('twitter')}>Share on Twitter</button>
+                        <button onClick={() => handleShare('facebook')}>Share on Facebook</button>
                     </div>
                 </div>
             )}
