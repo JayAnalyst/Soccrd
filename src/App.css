@@ -44,6 +44,27 @@
     box-sizing: border-box;
 }
 
+/* Tile Color Logic (for Wordle-style) */
+.tile.green {
+    background-color: #6aaa64; /* Correct letter in correct position */
+    border-color: #6aaa64;
+}
+
+.tile.yellow {
+    background-color: #c9b458; /* Correct letter, wrong position */
+    border-color: #c9b458;
+}
+
+.tile.red {
+    background-color: #787c7e; /* Incorrect letter */
+    border-color: #787c7e;
+}
+
+.tile.empty {
+    background-color: #ffffff; /* Empty tile */
+    border-color: #ddd;
+}
+
 /* Responsive Design for smaller screens */
 @media (max-width: 600px) {
     .App {
